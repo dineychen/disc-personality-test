@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🥏 飞盘人格测试</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* 开场页 */
+    .page {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .landing {
+      text-align: center;
+      padding-top: 60px;
+    }
+
+    .landing h1 {
+      font-size: 2.2em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+
+    .landing .subtitle {
+      font-size: 1.1em;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    .landing .disc-fly {
+      font-size: 4em;
+      margin: 30px 0;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .landing .desc {
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: left;
+      font-size: 0.95em;
+      line-height: 1.8;
+      color: #ddd;
+    }
+
+    .landing .warning {
+      font-size: 0.85em;
+      color: #888;
+      margin: 20px 0;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      border: none;
+      color: white;
+      padding: 16px 40px;
+      font-size: 1.1em;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* 测试页 */
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .progress-text {
+      font-size: 0.9em;
+      color: #aaa;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 3px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .question-text {
+      font-size: 1.2em;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.95em;
+      line-height: 1.5;
+    }
+
+    .option:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255, 107, 107, 0.5);
+      transform: translateX(5px);
+    }
+
+    .option.selected {
+      background: rgba(255, 107, 107, 0.3);
+      border-color: #ff6b6b;
+    }
+
+    .option .label {
+      color: #ff6b6b;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    /* 结果页 */
+    .result {
+      text-align: center;
+      padding-top: 30px;
+    }
+
+    .result-header {
+      font-size: 1.2em;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .result-type {
+      font-size: 3em;
+      margin: 20px 0;
+      text-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+    }
+
+    .result-name {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .result-quote {
+      font-size: 1.1em;
+      color: #ff6b6b;
+      font-style: italic;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 107, 107, 0.1);
+      border-radius: 12px;
+    }
+
+    .result-traits {
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 25px 0;
+      text-align: left;
+      line-height: 1.8;
+    }
+
+    .result-traits h3 {
+      color: #ff6b6b;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
+    .result-match {
+      font-size: 1.5em;
+      margin: 20px 0;
+    }
+
+    .result-match span {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    .share-tip {
+      font-size: 0.85em;
+      color: #888;
+      margin: 20px 0;
+    }
+
+    .dimensions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .dimension {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .dimension .name {
+      font-size: 0.8em;
+      color: #888;
+    }
+
+    .dimension .value {
+      font-size: 1.2em;
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    .actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 14px 25px;
+      font-size: 1em;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* 趣味弹幕 */
+    .fun-text {
+      font-size: 0.9em;
+      color: #888;
+      margin-top: 40px;
+      font-style: italic;
+    }
+
+    /* 页面切换动画 */
+    .page-transition {
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 开场页 -->
+    <div id="landing" class="page landing active">
+      <h1>🥏 飞盘人格测试</h1>
+      <div class="subtitle">DISC-FLY · 你是哪种飞盘选手？</div>
+      <div class="disc-fly">🥏</div>
+      <div class="desc">
+        你是在场上疯狂跑位的<strong>花粉</strong>？<br>
+        还是接到盘就huck的<strong>二营长</strong>？<br>
+        或者是场边指挥全场的<strong>李云龙</strong>？<br><br>
+        做完17道题，揭晓你的飞盘人格！
+      </div>
+      <button class="btn" onclick="startTest()">开始测试 →</button>
+      <div class="warning">
+        ⚠️ 本测试纯属娱乐，请勿当真<br>
+        结果仅供参考，禁止用于分手、招魂或算命
+      </div>
+    </div>
+
+    <!-- 测试页 -->
+    <div id="test" class="page">
+      <div class="test-header">
+        <div class="progress-text">第 <span id="currentQ">1</span> / <span id="totalQ">17</span> 题</div>
+        <div class="progress-text" id="timer"></div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="result" class="page result">
+      <div class="result-header">你的飞盘人格是</div>
+      <div class="result-type" id="resultType"></div>
+      <div class="result-name" id="resultName"></div>
+      <div class="result-quote" id="resultQuote"></div>
+      <div class="dimensions" id="dimensions"></div>
+      <div class="result-traits" id="resultTraits">
+        <h3>📋 特征描述</h3>
+        <p id="traitsText"></p>
+      </div>
+      <div class="result-match">与你的人格匹配度：<span id="matchPercent">0</span>%</div>
+      <div class="share-tip">👆 长按保存结果图分享到朋友圈</div>
+      <div class="actions">
+        <button class="btn-secondary" onclick="shareResult()">📤 分享给朋友</button>
+        <button class="btn-secondary" onclick="restartTest()">🔄 重新测试</button>
+      </div>
+      <div class="fun-text" id="funText"></div>
+    </div>
+  </div>
+
+  <script>
+    // ============ 题库数据 ============
+    const questions = [
+      {
+        text: "比赛进行到一半，你们落后3分，这时候你：",
+        options: [
+          { label: "A", text: "\"别急别急，我们稳住慢慢追！\"（佛系安慰）", types: ["F"] },
+          { label: "B", text: "大喊\"跑位跑位！别站那不动！\"（李云龙附体）", types: ["C"] },
+          { label: "C", text: "默默观察对手破绽，准备最后一波反杀（老艺术家思考）", types: ["I"] },
+          { label: "D", text: "拿出手机拍个视频发朋友圈：\"飞盘使我快乐\"", types: ["D"] }
+        ]
+      },
+      {
+        text: "你发现自己的飞盘已经用了两年，边都磨破了，你：",
+        options: [
+          { label: "A", text: "某鱼再买一个二手的，能用就行", types: ["F"] },
+          { label: "B", text: "必须换新！不然手感不对影响发挥", types: ["D"] },
+          { label: "C", text: "磨破了怎么了？技术又不是靠盘", types: ["I"] },
+          { label: "D", text: "拍照发圈：\"老伙计陪我征战两年\"", types: ["D"] }
+        ]
+      },
+      {
+        text: "队友失误了一个easy盘，你在场边会：",
+        options: [
+          { label: "A", text: "沉默不语，默默等待下一次机会", types: ["L"] },
+          { label: "B", text: "\"没事没事，继续加油！\"", types: ["S"] },
+          { label: "C", text: "大喊\"你刚才那个位置不对！应该这样！\"", types: ["P"] },
+          { label: "D", text: "心里mmp，脸上笑嘻嘻", types: ["I"] }
+        ]
+      },
+      {
+        text: "你接到盘的时候，你一般会：",
+        options: [
+          { label: "A", text: "观察3秒，找最佳传盘路线", types: ["I"] },
+          { label: "B", text: "有人盯我？？不管了直接huck！", types: ["R"] },
+          { label: "C", text: "先把盘护好，等队友跑出空位", types: ["Y"] },
+          { label: "D", text: "等一下，先让场边的人拍个照", types: ["D"] }
+        ]
+      },
+      {
+        text: "训练结束后，你更想：",
+        options: [
+          { label: "A", text: "一起吃个火锅聊聊天", types: ["S", "F"] },
+          { label: "B", text: "回家看比赛录像复盘", types: ["C"] },
+          { label: "C", text: "找个空地自己练会儿扔盘", types: ["I"] },
+          { label: "D", text: "发朋友圈：\"今天也是努力的一天呢\"", types: ["D"] }
+        ]
+      },
+      {
+        text: "你买飞盘装备，你的预算一般是：",
+        options: [
+          { label: "A", text: "够用就行，专业的不值得", types: ["F"] },
+          { label: "B", text: "必须是限量款，不然不够帅", types: ["D"] },
+          { label: "C", text: "够专业就行，不看品牌", types: ["I"] },
+          { label: "D", text: "发工资了整一套，然后晒单", types: ["D"] }
+        ]
+      },
+      {
+        text: "比赛最后一秒，你队友拿到了盘，这时候你：",
+        options: [
+          { label: "A", text: "疯狂跑位，不管有没有人传你", types: ["L"] },
+          { label: "B", text: "大喊\"给我给我！看我！\"", types: ["R"] },
+          { label: "C", text: "冷静跑位，等最佳时机", types: ["I"] },
+          { label: "D", text: "已经在想赢了怎么发朋友圈了", types: ["D"] }
+        ]
+      },
+      {
+        text: "赛前热身，你在做什么：",
+        options: [
+          { label: "A", text: "已经在场边摆好pose拍照了", types: ["D"] },
+          { label: "B", text: "默默练正手反手，各种花式", types: ["I"] },
+          { label: "C", text: "到处找人social，寒暄聊天", types: ["S"] },
+          { label: "D", text: "跟着队伍热身，心里在想今晚吃什么", types: ["F"] }
+        ]
+      },
+      {
+        text: "你第一次去一个陌生的飞盘局，你：",
+        options: [
+          { label: "A", text: "主动加所有人微信，拉群", types: ["S"] },
+          { label: "B", text: "默默观察，找最强的人跟", types: ["I"] },
+          { label: "C", text: "跟着朋友混，社恐发作", types: ["L"] },
+          { label: "D", text: "拍照打卡：解锁新场地", types: ["D"] }
+        ]
+      },
+      {
+        text: "比赛输了，你第一时间：",
+        options: [
+          { label: "A", text: "\"无所谓，开心就好\"", types: ["F"] },
+          { label: "B", text: "开始分析哪里出了问题", types: ["C"] },
+          { label: "C", text: "打开相册选今晚发的照片", types: ["D"] },
+          { label: "D", text: "大喊\"没事！下次干回来！\"", types: ["S"] }
+        ]
+      },
+      {
+        text: "你对飞盘战术的态度是：",
+        options: [
+          { label: "A", text: "什么战术不重要，执行最重要", types: ["S"] },
+          { label: "B", text: "战术是基础，没有战术就是乱打", types: ["C"] },
+          { label: "C", text: "我一个人能解决的不需要战术", types: ["R"] },
+          { label: "D", text: "佛系，随缘", types: ["F"] }
+        ]
+      },
+      {
+        text: "队友邀请你周末加练，你：",
+        options: [
+          { label: "A", text: "\"加练？不约！我要躺平\"", types: ["F"] },
+          { label: "B", text: "\"来！我正好在练新招\"", types: ["I"] },
+          { label: "C", text: "\"行！顺便组个饭局？\"", types: ["S"] },
+          { label: "D", text: "\"加练是什么？随缘随缘\"", types: ["L"] }
+        ]
+      },
+      {
+        text: "比赛中最让你开心的是：",
+        options: [
+          { label: "A", text: "全队一起配合打出完美战术", types: ["C"] },
+          { label: "B", text: "自己扔出一个漂亮的hammer", types: ["I"] },
+          { label: "C", text: "大家都来拍照，气氛超好", types: ["D"] },
+          { label: "D", text: "成功防守了对面最强的人", types: ["Y"] }
+        ]
+      },
+      {
+        text: "你的飞盘包里一定会有：",
+        options: [
+          { label: "A", text: "2块以上的飞盘 + 各种练习道具", types: ["I"] },
+          { label: "B", text: "发带、发圈、墨镜、拍照道具", types: ["D"] },
+          { label: "C", text: "战术笔记本", types: ["C"] },
+          { label: "D", text: "充电宝", types: ["D", "L"] }
+        ]
+      },
+      {
+        text: "比赛结束收拾东西时，你：",
+        options: [
+          { label: "A", text: "开始发朋友圈和群里", types: ["D"] },
+          { label: "B", text: "拉着队友复盘刚才的问题", types: ["C"] },
+          { label: "C", text: "默默收拾，等着去吃饭", types: ["F"] },
+          { label: "D", text: "继续在场边练会儿扔盘", types: ["I"] }
+        ]
+      },
+      {
+        text: "你最受不了的队友是：",
+        options: [
+          { label: "A", text: "不social的，太无聊了", types: ["S"] },
+          { label: "B", text: "乱喊战术瞎指挥的", types: ["P"] },
+          { label: "C", text: "输了还无所谓的", types: ["C"] },
+          { label: "D", text: "不防守只想着进攻的", types: ["Y"] }
+        ]
+      },
+      {
+        text: "你觉得自己在场上的存在感是：",
+        options: [
+          { label: "A", text: "没有我，就没有场上的快乐气氛", types: ["S"] },
+          { label: "B", text: "我在不在影响不大", types: ["F"] },
+          { label: "C", text: "少了我的话，战术体系会崩", types: ["C"] },
+          { label: "D", text: "我就是场上的风景线", types: ["D"] }
+        ]
+      }
+    ];
+
+    // ============ 人格类型数据 ============
+    const personalities = {
+      "D": {
+        name: "抖音打卡型",
+        quote: "\"今天阳光好出片！先别急，让我摆个pose\"",
+        traits: "飞盘穿搭>飞盘技术。leggings必须是lululemon，发带要配套。场上10分钟拍照2小时，朋友圈发完才算运动结束。永远在找最佳光线，发球前先确认队友有没有对上焦。",
+        emoji: "📸",
+        dimensions: { S: 20, P: 55, E: 85, T: 25 }
+      },
+      "I": {
+        name: "老艺术家",
+        quote: "\"我最近在练hammer，等下给你表演个\"",
+        traits: "技术执念极深，痴迷花式投掷。正手反手hammer切换行云流水，在公园独自练习的时间比组队还多。看到新人会主动上前\"我教你个技巧\"，然后开始长达20分钟的教学。",
+        emoji: "🎨",
+        dimensions: { S: 45, P: 25, E: 50, T: 50 }
+      },
+      "S": {
+        name: "社交达人型",
+        quote: "\"今晚谁请客？大家认识一下呀~\"",
+        traits: "人来疯+气氛组组长。永远在喊\"好盘！漂亮！牛X！\"，声音穿透整个场子。赛后局比比赛更重要，认识全城所有飞盘群。但你问他刚才那个战术叫什么，他只会说\"就是那个嘛！\"",
+        emoji: "🎭",
+        dimensions: { S: 50, P: 85, E: 50, T: 50 }
+      },
+      "C": {
+        name: "李云龙",
+        quote: "\"二营长，你的意大利炮呢？给我轰！\"",
+        traits: "场上指挥官，跑位全靠喊。战术板画得比教练还专业，比赛输了他能复盘到凌晨。眼里容不得沙子，队友跑错位他会急，队友失误他会更急。",
+        emoji: "🗡️",
+        dimensions: { S: 65, P: 50, E: 20, T: 90 }
+      },
+      "F": {
+        name: "佛系养生型",
+        quote: "\"运动嘛，开心就好，何必呢\"",
+        traits: "胜负看淡，开心就好。从不主动要求训练，喊他来要靠缘分。装备能借就借，赛后第一句话问\"附近有啥好吃的\"。拒绝一切内卷式训练。",
+        emoji: "🧘",
+        dimensions: { S: 25, P: 50, E: 20, T: 50 }
+      },
+      "Y": {
+        name: "狗皮膏药",
+        quote: "\"你试试突破我？今天你别想往前推一步\"",
+        traits: "防守端的人形炸弹。对手看到他就知道今天别想舒服。脚步比钉子还稳，卡位意识顶级。进攻球员的噩梦，突破三次被断三次。但你别想让他进攻，他的人生信条就是\"我可以不过，但你别想过\"。",
+        emoji: "🛡️",
+        dimensions: { S: 15, P: 20, E: 50, T: 85 }
+      },
+      "P": {
+        name: "大喷菇",
+        quote: "\"这盘你都能接歪？？？眼睛长哪去了？？\"",
+        traits: "场边最响的声音，队友最大的噩梦。自己不上场，专门负责场边解说和战术指导。队友接不住盘他比谁都急，队友失误他能喷到比赛结束。声音巨大，隔一个场都能听见。",
+        emoji: "🍄",
+        dimensions: { S: 50, P: 95, E: 15, T: 15 }
+      },
+      "R": {
+        name: "二营长",
+        quote: "\"接到盘别废话，huck就完事了！\"",
+        traits: "接到盘不超过3秒必出盘。什么战术什么跑位，不存在的，huck就是最好的战术。宁可把盘扔到天上也不愿多传一脚。全场最刺激也最神经质的选手。",
+        emoji: "💨",
+        dimensions: { S: 90, P: 20, E: 50, T: 25 }
+      },
+      "L": {
+        name: "花粉",
+        quote: "\"别喊我，我停不下来，我也不知道我要去哪\"",
+        traits: "场上的永动机，裁判的噩梦。体力无限，到处乱窜，哪里都有他。没有固定位置，没有固定跑位路线，就是一个字：动。队友根本不知道他下一秒会出现在哪，自己也不知道。",
+        emoji: "🌸",
+        dimensions: { S: 85, P: 45, E: 15, T: 25 }
+      }
+    };
+
+    // ============ 测试逻辑 ============
+    let currentQuestion = 0;
+    let answers = [];
+    let shuffledQuestions = [];
+    let scores = { D: 0, I: 0, S: 0, C: 0, F: 0, Y: 0, P: 0, R: 0, L: 0 };
+    let startTime = Date.now();
+
+    // Fisher-Yates 洗牌算法
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function startTest() {
+      shuffledQuestions = shuffle(questions);
+      currentQuestion = 0;
+      answers = [];
+      scores = { D: 0, I: 0, S: 0, C: 0, F: 0, Y: 0, P: 0, R: 0, L: 0 };
+      startTime = Date.now();
+
+      showPage('test');
+      showQuestion();
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      document.getElementById(pageId).classList.add('page-transition');
+    }
+
+    function showQuestion() {
+      const q = shuffledQuestions[currentQuestion];
+      document.getElementById('currentQ').textContent = currentQuestion + 1;
+      document.getElementById('totalQ').textContent = shuffledQuestions.length;
+      document.getElementById('progressFill').style.width = ((currentQuestion) / shuffledQuestions.length * 100) + '%';
+
+      document.getElementById('questionText').textContent = q.text;
+
+      const optionsContainer = document.getElementById('optionsContainer');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((opt, index) => {
+        const optEl = document.createElement('div');
+        optEl.className = 'option';
+        optEl.innerHTML = `<span class="label">${opt.label}</span> ${opt.text}`;
+        optEl.onclick = () => selectOption(index, opt);
+        optionsContainer.appendChild(optEl);
+      });
+    }
+
+    function selectOption(index, option) {
+      // 记录答案
+      answers.push({
+        question: currentQuestion,
+        option: index,
+        types: option.types
+      });
+
+      // 计分
+      option.types.forEach(type => {
+        scores[type]++;
+      });
+
+      // 标记选中
+      document.querySelectorAll('.option').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+      });
+
+      // 下一题或显示结果
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion < shuffledQuestions.length) {
+          showQuestion();
+        } else {
+          showResult();
+        }
+      }, 300);
+    }
+
+    function showResult() {
+      // 计算结果
+      const maxScore = Math.max(...Object.values(scores));
+      const topTypes = Object.keys(scores).filter(k => scores[k] === maxScore);
+
+      // 随机选择最高分的类型
+      const resultType = topTypes[Math.floor(Math.random() * topTypes.length)];
+      const personality = personalities[resultType];
+
+      // 计算匹配度 (模拟)
+      const matchPercent = 75 + Math.floor(Math.random() * 20);
+
+      // 显示结果
+      document.getElementById('resultType').textContent = personality.emoji;
+      document.getElementById('resultName').textContent = personality.name;
+      document.getElementById('resultQuote').textContent = personality.quote;
+      document.getElementById('traitsText').textContent = personality.traits;
+      document.getElementById('matchPercent').textContent = matchPercent;
+
+      // 显示维度
+      const dims = personality.dimensions;
+      const dimsEl = document.getElementById('dimensions');
+      dimsEl.innerHTML = `
+        <div class="dimension"><div class="name">进攻/Style</div><div class="value">${dims.S}%</div></div>
+        <div class="dimension"><div class="name">社交/Passion</div><div class="value">${dims.P}%</div></div>
+        <div class="dimension"><div class="name">装备/Ego</div><div class="value">${dims.E}%</div></div>
+        <div class="dimension"><div class="name">团队/Team</div><div class="value">${dims.T}%</div></div>
+      `;
+
+      // 趣味语
+      const funTexts = [
+        "怎么样，被我拿捏了吧？",
+        "别挣扎了，这就是你",
+        "承认吧，你就是这样的人",
+        "测都测了，还不承认？",
+        "命运已经给出了答案"
+      ];
+      document.getElementById('funText').textContent = funTexts[Math.floor(Math.random() * funTexts.length)];
+
+      showPage('result');
+    }
+
+    function restartTest() {
+      startTest();
+    }
+
+    function shareResult() {
+      const resultName = document.getElementById('resultName').textContent;
+      const quote = document.getElementById('resultQuote').textContent;
+
+      if (navigator.share) {
+        navigator.share({
+          title: '🥏 飞盘人格测试',
+          text: `我是${resultName}！${quote} 快来测测你是哪种飞盘选手！`,
+          url: window.location.href
+        });
+      } else {
+        // 复制链接
+        const text = `我是${resultName}！${quote} 快来测测你是哪种飞盘选手！ ${window.location.href}`;
+        navigator.clipboard.writeText(text).then(() => {
+          alert('链接已复制，快去分享给朋友！');
+        });
+      }
+    }
+  </script>
+</body>
+</html>
